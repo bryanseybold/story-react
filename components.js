@@ -119,11 +119,13 @@ const StoryEntryEdit = (props) => {
 }
 
 const StoryEntryView = (props) => {
-	const onClick = () => (props.edit_node_callback(props.node)); return (
+	console.log(props);
+	const onClick = () => {props.edit_node_callback(props.node)};
+	return (
 		<div>
 		<h3>{props.node.name}</h3>
 		<p>{props.node.content}</p>
-		<p>attributes</p>
+		<p>attributes: {props.story.attributes.filter( attr => { return props.node.attributes.includes(attr.id); }).map(attr => {return attr.name + " ";})}</p>
 		<p>links</p>
 		<button onClick={onClick}>edit</button>
 		</div>
@@ -131,10 +133,12 @@ const StoryEntryView = (props) => {
 }
 
 const StoryColumn = (props) => {
+	const onClick = () => {props.add_node_callback(props.cluster.id)};
 	return (
 		<div>
 		<h2> {props.cluster.name} </h2>
-		{props.story.nodes.filter( node => { return node.attributes.includes(props.cluster.id); }).map(node => { return <StoryEntryView key={node.id} edit_node_callback={props.edit_node_callback} node={node}/>;})} 
+		{props.story.nodes.filter( node => { return node.attributes.includes(props.cluster.id); }).map(node => { return <StoryEntryView key={node.id} story={props.story} edit_node_callback={props.edit_node_callback} node={node}/>;})} 
+		<button onClick={onClick}>add node</button>
 		</div>
 	);
 }
@@ -147,7 +151,7 @@ const StoryBoard = (props) => {
 		<div>
 			<h1>Story Board</h1>
 			{clusters.map(cluster => (
-				<StoryColumn key={cluster.name} cluster={cluster} story={props.story} edit_node_callback={props.edit_node_callback}/>
+				<StoryColumn key={cluster.name} cluster={cluster} story={props.story} edit_node_callback={props.edit_node_callback} add_node_callback={props.add_node_callback}/>
 			))}
 		</div>
 	);
@@ -226,7 +230,7 @@ const AttributeEdit = (props) => {
 }
 
 const AttributeEditor = (props) => {
-	// DO A GRID LAYOUT!! loop through all positions, adding either attr or spacer.
+	// DO A GRID LAYOUT!! loop through all positions, adding either attr or spacer
 	if (props.mode === "edit") {
 		return (
 			<div>
@@ -234,11 +238,12 @@ const AttributeEditor = (props) => {
 			{props.story.attributes.map((attr) => {
 				return <AttributeEdit key={attr.name} attribute={attr} edit_attr_callback={props.edit_attr_callback}/>;
 			})}
+			<button onClick={props.add_attr_callback}>add attr</button>
 			<button onClick={props.request_main_view}>Close</button>
 			</div>
 		);
 	} else {
-		const onClick = () => (props.request_edit_node_callback(props.node));
+		const onClick = () => {props.request_edit_node_callback(props.node)};
 		return(
 			<div>
 			<h1>Attribute Editor</h1>
@@ -254,9 +259,8 @@ const AttributeEditor = (props) => {
 
 const Overlay = (props) => {
 	if (props.action === "EditAttributes") {
-		return <AttributeEditor story={props.story} mode={"edit"} edit_attr_callback={props.edit_attr_callback} request_main_view={props.request_main_view}/>;
+		return <AttributeEditor story={props.story} mode={"edit"} edit_attr_callback={props.edit_attr_callback} request_main_view={props.request_main_view} add_attr_callback={props.add_attr_callback}/>;
 	} else if (props.action === "SelectNodeAttributes") {
-		console.log("in here! ", "select");
 		return (<AttributeEditor story={props.story} node={props.edit_target} mode={"select"} node_attribute_callback={props.node_attribute_callback} request_edit_node_callback={props.request_edit_node_callback}/>);
 	} else if (props.action === "SelectLinkAttributes") {
 		return (<AttributeEditor story={props.story} mode={"select"} link_attribute_callback={props.link_attribute_callback}/>);
@@ -300,6 +304,18 @@ const App = () => {
 		setStory({...story});
 	}
 
+	const AddAttrCallback = function() {
+		var next_id = -1;
+		story.attributes.forEach((attr) => {if (attr.id >= next_id) {next_id = attr.id + 1;}});
+		var new_attr = {
+			id: next_id,
+			name: "<unnamed>",
+			clustered: false,
+		}
+		story.attributes.push(new_attr);
+		setStory({...story});
+	}
+
 	const EditNodeCallback = function(node_id, new_name=null, new_content=null) {
 		var node = story.nodes.find((node) => node.id === node_id);
 		if (new_name != null) {
@@ -309,6 +325,22 @@ const App = () => {
 			node.content = new_content;
 		}
 		setStory({...story});
+	}
+
+	const AddNodeCallback = function(cluster_id) {
+		var next_id = -1;
+		story.nodes.forEach((node) => {if (node.id >= next_id) {next_id = node.id + 1;}});
+		var new_node = {
+			id: next_id,
+			name: "<unnamed>",
+			content: "<unknown>",
+			attributes: [cluster_id],
+		}
+		story.nodes.push(new_node);
+		setStory({...story});
+		setEditTarget(new_node);
+		setMode("EditNode"); 
+
 	}
 
 	const LinkNodesCallback = function(source, target, create_not_destroy) {
@@ -368,10 +400,15 @@ const App = () => {
 	return (
 		<div>
 			<NavBar user={user} request_edit_attribute={RequestEditAttr} />
-			<StoryBoard story={story} edit_node_callback={RequestEditNode}  />
+			<StoryBoard
+				story={story}
+				edit_node_callback={RequestEditNode}
+				add_node_callback={AddNodeCallback}
+			/>
 			<Overlay story={story} action={mode} edit_target={editTarget}
 				 request_main_view={RequestMainView}
 		                 edit_attr_callback={EditAttrCallback}
+				 add_attr_callback={AddAttrCallback}
 				 edit_node_callback={EditNodeCallback}
 				 link_nodes_callback={LinkNodesCallback}
 				 node_attribute_callback={NodeAttributeCallback}
