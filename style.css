@@ -1,0 +1,159 @@
+/*
+*/
+
+/* site styles */
+.background-purple {
+	background-color: RebeccaPurple;
+}
+.foreground-snow {
+	background-color: Snow;
+	border-radius: 5px;
+}
+
+/* element styles */
+body {
+	background-color: RebeccaPurple;
+	font-family: 'Open Sans', sans-serif;
+}
+
+button {
+	background-color: LavenderBlush;
+	border-color: RebeccaPurple;
+	border-width: 5px;
+	margin: 5px;
+	border-radius: 5px;
+	font-family: 'Open Sans', sans-serif;
+}
+
+h1 {
+	margin: 5px 0 5px 0;
+}
+
+/* class styles */
+
+/* navbar */
+.navbar {
+	display: flex;
+	width: 90vw;
+	justify-content: space-between;
+	margin: auto auto;
+}
+
+.navbar__title {
+	font-size: 6vh;
+	font-weight: normal;
+	font-family: 'Fredericka the Great', cursive;
+	margin: 5px;
+}
+
+.navbar__login {
+	display: flex;
+	flex-direction: column;
+	margin: 5px;
+}
+
+
+/* storyboard */
+.storyboard {
+	display: flex;
+	margin: 10px 0px 10px 0px;
+	overflow-x: auto;
+}
+
+.storycolumn {
+	flex: 0 0 auto;
+	width: 40vw;
+	overflow-y: scroll;
+	height: 85vh;
+	border: solid;
+	border-color: RebeccaPurple;
+	border-width: 3px;
+}
+
+.card {
+	border: solid;
+	border-width: 2px;
+	border-color: RebeccaPurple;
+	margin: 2px;
+	border-radius: 5px;
+}
+
+.storyentryview {
+	display: flex;
+	flex-direction: column;	
+	padding: 3px;
+}
+
+.storyentryview__Name {
+	margin: 5px 0 5px 0px;
+}
+
+.storyentryview__Contents {
+	min-height: 5em;
+	height: auto;
+	margin: 5px 0 5px 0px;
+}
+
+.storyentryview__Attributes{
+	margin: 5px 0 5px 0;
+	color: DimGrey;
+}
+.storyentryview__BottomLine {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+}
+
+.storyentryview__Edit {
+	height: 2.5em;
+}
+
+/* overlay */
+.overlay {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translateX(-50%) translateY(-50%);
+	border: solid;
+	border-color: RebeccaPurple;
+	padding: 2em;
+}
+
+.attributeeditor {
+	min-width: 30em;
+}
+
+.attributeedit {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+}
+
+.attributeedit__NameInput {
+	width: 100%;
+}
+
+.attributeedit__Item {
+	margin-left: 0.2em;	
+	margin-right: 0.2em;	
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+
+.storyentryedit {
+	display: flex;
+	flex-direction: column;
+}
+
+.storyentryedit__ContentInput {
+	min-width: 20em;
+	min-height: 5em;
+}
+.storyentryedit__NameInput {
+	min-width: 20em;
+	margin-left: 0.4em;
+}
+.storyentryedit__Buttons {
+	display: flex;
+	justify-content: space-around;
+}

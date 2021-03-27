@@ -7,7 +7,7 @@ const GetDefaultStory = () => {
 			{
 				"id": 0,
 				"name": "People",
-				"color": "#FF0000", // if not present, no color!
+				"color": "#FFAAAA", // if not present, no color!
 				"position": {
 					"row": 1,
 					"col": 1,
@@ -17,7 +17,7 @@ const GetDefaultStory = () => {
 			{	
 				"id": 1,
 				"name": "Places",
-				"color": "#00FF00",
+				"color": "#AAFFAA",
 				"position": {
 					"row": 1,
 					"col": 2,
@@ -27,7 +27,7 @@ const GetDefaultStory = () => {
 			{
 				"id": 2,
 				"name":	"Things",
-				"color": "#0000FF",
+				"color": "#AAAAFF",
 				"position": {
 					"row": 1,
 					"col": 3,
@@ -80,11 +80,13 @@ const GetDefaultStory = () => {
 
 const NavBar = (props) => {
 	return (
-		<div>
-			<span>Story Board</span>
-			<span>user:{props.user}</span>
-			<span>log-out</span>
+		<div className="navbar foreground-snow">
 			<button onClick={props.request_edit_attribute}>Edit Attributes</button>
+			<h1 className="navbar__title">Story Board</h1>
+			<div className="navbar__login">
+			<span>user:{props.user}</span>
+			<button>log-out</button>
+			</div>
 		</div>
 	);
 }
@@ -107,13 +109,18 @@ const StoryEntryEdit = (props) => {
 	}
 	const onUpdateNode = () => (props.edit_node_callback(props.node.id, form.name, form.content));
 	return (
+		<div className="storyentry storyentryedit">
 		<div>
 		<label>Name:</label>
-		<input type="text" value={form.name} name="name" onChange={handleChange}/>
+		<input className="storyentryedit__NameInput" type="text" value={form.name} name="name" onChange={handleChange}/>
+		</div>
 		<label>Content:</label>
-		<textarea name="content" value={form.content} onChange={handleChange} />
+		<textarea className="storyentryedit__ContentInput" name="content" value={form.content} onChange={handleChange} />
+		<div className="storyentryedit__Buttons">
 		<button onClick={onUpdateNode}>update node</button>
 		<button onClick={props.request_node_attr_select}>set attributes</button>
+		<button onClick={props.request_main_view}>close</button>
+		</div>
 		</div>
 	);
 }
@@ -121,13 +128,16 @@ const StoryEntryEdit = (props) => {
 const StoryEntryView = (props) => {
 	console.log(props);
 	const onClick = () => {props.edit_node_callback(props.node)};
+	// add back <p> links </p> or similar
 	return (
-		<div>
-		<h3>{props.node.name}</h3>
-		<p>{props.node.content}</p>
-		<p>attributes: {props.story.attributes.filter( attr => { return props.node.attributes.includes(attr.id); }).map(attr => {return attr.name + " ";})}</p>
-		<p>links</p>
-		<button onClick={onClick}>edit</button>
+		<div className="card storyentry storyentryview foreground-snow">
+		<h3 className="storyentryview__Name">{props.node.name}</h3>
+		<p className="storyentryview__Contents">{props.node.content}</p>
+		<div className="storyentryview__BottomLine">
+		<p className="storyentryview__Attributes">attributes: {props.story.attributes.filter( attr => { return props.node.attributes.includes(attr.id); }).map((attr, idx) => {
+			if (idx > 0) {return ", " + attr.name;} else { return attr.name;}})}</p>
+		<button className="storyentryview__Edit" onClick={onClick}>edit</button>
+		</div>
 		</div>
 	);
 }
@@ -135,8 +145,8 @@ const StoryEntryView = (props) => {
 const StoryColumn = (props) => {
 	const onClick = () => {props.add_node_callback(props.cluster.id)};
 	return (
-		<div>
-		<h2> {props.cluster.name} </h2>
+		<div className="storycolumn" style={{backgroundColor: props.cluster.color}}>
+		<h2 className="storycolumn__Name" style={{backgroundImage: "linear-gradient("+props.cluster.color+", 10%, Snow)"}}> {props.cluster.name} </h2>
 		{props.story.nodes.filter( node => { return node.attributes.includes(props.cluster.id); }).map(node => { return <StoryEntryView key={node.id} story={props.story} edit_node_callback={props.edit_node_callback} node={node}/>;})} 
 		<button onClick={onClick}>add node</button>
 		</div>
@@ -148,8 +158,7 @@ const StoryBoard = (props) => {
 		return attr.cluster;
 	});
 	return (
-		<div>
-			<h1>Story Board</h1>
+		<div className="storyboard foreground-snow">
 			{clusters.map(cluster => (
 				<StoryColumn key={cluster.name} cluster={cluster} story={props.story} edit_node_callback={props.edit_node_callback} add_node_callback={props.add_node_callback}/>
 			))}
@@ -162,7 +171,7 @@ const AttributeSelect = (props) => {
 		"node_id": -1,});
 	if (!props.attribute) {  // a placeholder for empties.
 		return (
-			<div />
+			<div className="card attribute emptyattribute"/>
 		);
 	}
 	if (form.node_id != props.node.id) {
@@ -177,7 +186,7 @@ const AttributeSelect = (props) => {
 	}
 	const checked = props.node ? props.node.attributes.includes(props.attribute.id) : false;
 	return (
-		<div>
+		<div className="card attribute attributeselect">
 		<input type="checkbox" checked={checked} name="checked" onChange={handleChange}/><label>{props.attribute.name}</label>
 		</div>
 	);
@@ -188,7 +197,7 @@ const AttributeEdit = (props) => {
 		"attr_id": -1,});
 	if (!props.attribute) {  // a placeholder for empties.
 		return (
-			<div />
+			<div className="card attribute emptyattribute"/>
 		);
 	}
 	if (form.attr_id != props.attribute.id) {
@@ -198,11 +207,6 @@ const AttributeEdit = (props) => {
 			"color": props.attribute.color ? props.attribute.color : "#FFFFFF",
 			"clustered": props.attribute.cluster ? true : false,
 		});
-	}
-	if (!props.attribute) {  // a placeholder for empties.
-		return (
-			<div />
-		);
 	}
 	const handleChange = event => {
 		const value = event.target.type === "checkbox" ? event.target.checked : event.target.value;
@@ -219,12 +223,11 @@ const AttributeEdit = (props) => {
 		}
 	}
 	return (
-		<div>
-		<div className="attribute__drag-handle" />
-		<label>Name:</label>
-		<input type="text" name="name" value={form.name} onChange={handleChange} onBlur={handleBlur}/>
-		<input type="color" name="color" value={form.color} onChange={handleChange}/>
-		<input type="checkbox" name="clustered" checked={form.clustered} onChange={handleChange}/><label>Clustered</label>
+		<div className="card attribute attributeedit attribute__drag-handle">
+		<label className="attributeedit__Item">Name:</label>
+		<input className="attributeedit__NameInput attributeedit__Item" type="text" name="name" value={form.name} onChange={handleChange} onBlur={handleBlur}/>
+		<input className="attributeedit__Item" type="color" name="color" value={form.color} onChange={handleChange}/>
+		<input className="attributeedit__Item" type="checkbox" name="clustered" checked={form.clustered} onChange={handleChange}/><label className="attributeedit__Item">Clustered</label>
 		</div>
 	);
 }
@@ -233,7 +236,7 @@ const AttributeEditor = (props) => {
 	// DO A GRID LAYOUT!! loop through all positions, adding either attr or spacer
 	if (props.mode === "edit") {
 		return (
-			<div>
+			<div className="attributepanel attributeeditor">
 			<h1>Attribute Editor</h1>
 			{props.story.attributes.map((attr) => {
 				return <AttributeEdit key={attr.name} attribute={attr} edit_attr_callback={props.edit_attr_callback}/>;
@@ -245,7 +248,7 @@ const AttributeEditor = (props) => {
 	} else {
 		const onClick = () => {props.request_edit_node_callback(props.node)};
 		return(
-			<div>
+			<div className="attributepanel attributeselector">
 			<h1>Attribute Editor</h1>
 			{props.story.attributes.map((attr) => {
 				return <AttributeSelect key={attr.name} attribute={attr}  node={props.node} node_attribute_callback={props.node_attribute_callback}/>;
@@ -258,17 +261,19 @@ const AttributeEditor = (props) => {
 
 
 const Overlay = (props) => {
+	var contents;
 	if (props.action === "EditAttributes") {
-		return <AttributeEditor story={props.story} mode={"edit"} edit_attr_callback={props.edit_attr_callback} request_main_view={props.request_main_view} add_attr_callback={props.add_attr_callback}/>;
+		contents = <AttributeEditor story={props.story} mode={"edit"} edit_attr_callback={props.edit_attr_callback} request_main_view={props.request_main_view} add_attr_callback={props.add_attr_callback}/>;
 	} else if (props.action === "SelectNodeAttributes") {
-		return (<AttributeEditor story={props.story} node={props.edit_target} mode={"select"} node_attribute_callback={props.node_attribute_callback} request_edit_node_callback={props.request_edit_node_callback}/>);
+		contents = (<AttributeEditor story={props.story} node={props.edit_target} mode={"select"} node_attribute_callback={props.node_attribute_callback} request_edit_node_callback={props.request_edit_node_callback}/>);
 	} else if (props.action === "SelectLinkAttributes") {
-		return (<AttributeEditor story={props.story} mode={"select"} link_attribute_callback={props.link_attribute_callback}/>);
+		contents = (<AttributeEditor story={props.story} mode={"select"} link_attribute_callback={props.link_attribute_callback}/>);
 	} else if (props.action === "EditNode") {
-		return (<StoryEntryEdit story={props.story} node={props.edit_target} edit_node_callback={props.edit_node_callback} request_node_attr_select={props.request_node_attr_select}/>);
+		contents = (<StoryEntryEdit story={props.story} node={props.edit_target} edit_node_callback={props.edit_node_callback} request_node_attr_select={props.request_node_attr_select} request_main_view={props.request_main_view}/>);
 	} else if (props.action === "SelectNode") {
-		return (<StoryBoard story={props.story} mode={"select"} link_nodes_callback={props.link_nodes_callback}/>);
+		contents = (<StoryBoard story={props.story} mode={"select"} link_nodes_callback={props.link_nodes_callback}/>);
 	} else { return null; }
+	return <div className="overlay foreground-snow"> {contents} </div>
 }
 
 const App = () => {
@@ -399,13 +404,14 @@ const App = () => {
 
 	return (
 		<div>
-			<NavBar user={user} request_edit_attribute={RequestEditAttr} />
-			<StoryBoard
+			<NavBar className="topbar" user={user} request_edit_attribute={RequestEditAttr} />
+			<StoryBoard className="mainview"
 				story={story}
 				edit_node_callback={RequestEditNode}
 				add_node_callback={AddNodeCallback}
 			/>
-			<Overlay story={story} action={mode} edit_target={editTarget}
+			<Overlay className="overlay"
+				 story={story} action={mode} edit_target={editTarget}
 				 request_main_view={RequestMainView}
 		                 edit_attr_callback={EditAttrCallback}
 				 add_attr_callback={AddAttrCallback}
